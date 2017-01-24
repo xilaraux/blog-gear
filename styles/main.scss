@@ -1,0 +1,436 @@
+@import "../src/modules/gallery/_index.scss";
+@import "../src/modules/slider/_index.scss";
+
+// Variables
+$maxPageWidth: 1024px;
+
+$mainBg: #FF5A5F;
+
+$normalSize: 16px;
+
+$headerHeight: 64px;
+$headerBg: $mainBg;
+
+$footerHeight: 50px;
+$footerColor: $mainBg;
+
+// Main configs for page.
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+
+  font-size: $normalSize;
+  font-family: 'Roboto', sans-serif;
+}
+
+.page-container {
+  min-height: 100%;
+  padding-bottom: $footerHeight;
+}
+
+.footer {
+  height: $footerHeight;
+  margin: 0 auto;
+  margin-top: -$footerHeight;
+  background-color: $footerColor;
+}
+
+// Container
+.container {
+  margin: 0 auto;
+  max-width: $maxPageWidth;
+  overflow: hidden;
+}
+
+// Header
+.header {
+  height: $headerHeight;
+  padding: 0 10px 0;
+  line-height: $headerHeight;
+  overflow: hidden;
+  color: #fff;
+  background-color: $headerBg;
+}
+
+.header__link {
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+
+  text-decoration: none;
+  color: #fff;
+}
+
+.header__logo {
+  float: left;
+}
+
+.header__nav {
+  float: right;
+  font-size: 0;
+  z-index: 2;
+
+  .header__link {
+    padding: 0 10px;
+  }
+}
+
+.header__nav_inner {
+  display: none;
+  position: absolute;
+  top: $headerHeight;
+
+  .header__item {
+    display: block;
+    background-color: $headerBg;
+  }
+}
+
+.header__item {
+  display: inline-block;
+  font-size: $normalSize;
+
+  transition: background-color .7s ease-in-out;
+
+  &:hover {
+    background-color: darken($headerBg, 20%);
+  }
+}
+
+.header__image {
+  width: 100%;
+  height: 100%;
+}
+
+.opened {
+  display: block;
+}
+
+// Content
+.content {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+// Slider
+.slider {
+  top: $headerHeight;
+  left: 0;
+  right: 0;
+  bottom: $footerHeight;
+  position: fixed;
+  z-index: 1;
+}
+
+.slider__panel {
+  color: $mainBg;
+}
+
+// Map
+.contacts {
+  top: $headerHeight;
+  left: 0;
+  right: 0;
+  bottom: $footerHeight;
+  position: fixed;
+  z-index: 1;
+
+  .contacts__details {
+    width: 250px;
+    padding: 10px 20px;
+    color: $mainBg;
+    background-color: #fff;
+    position: absolute;
+    left: 50px;
+    bottom: 100px;
+    z-index: 2;
+  }
+
+  .contacts__text {
+    margin-bottom: 5px;
+    font-weight: bold;
+    font-size: $normalSize;
+  }
+  
+  .contacts__link {
+    text-decoration: none;
+    color: $mainBg;
+    font-weight: normal;
+    border-bottom: 1px dashed $mainBg;
+
+    &:hover {
+      font-weight: bold;
+      color: darken($mainBg, 20%);
+    }
+  }
+
+  .contacts__map {
+    height: 100%;
+  }
+}
+
+// Blog styles
+.container_blog {
+  //top: $headerHeight;
+  //left: 0;
+  //right: 0;
+  //bottom: $footerHeight;
+  //position: fixed;
+  //overflow: auto;
+  //z-index: 1;
+}
+
+// Blog
+.blog {
+  height: 100%;
+}
+
+.blog__nav {
+  width: 25%;
+  //height: 100%;
+  padding: 20px 10px 0 5px;
+  vertical-align: top;
+  display: inline-block;
+}
+
+.blog__content {
+  width: 100%;
+}
+
+.blog__nav ~ .blog__content {
+  width: 75%;
+  vertical-align: top;
+  display: inline-block;
+}
+
+.blog__post {
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.blog__pagination {
+  margin-top: 20px;
+  text-align: right;
+}
+
+// Blog search
+.blog__search {
+  width: 100%;
+  height: 30px;
+  margin-bottom: 5px;
+}
+
+.blog__button {
+  width: 100%;
+  height: 30px;
+  margin-bottom: 5px;
+}
+
+.blog__form {
+  font-size: $normalSize;
+}
+
+.blog__input {
+  padding: 0 5px;
+}
+
+// Login panel
+.control {
+
+}
+
+.control__name {
+  width: 100%;
+  height: 30px;
+  margin-bottom: 5px;
+}
+
+.control__pass {
+  width: 100%;
+  height: 30px;
+  margin-bottom: 5px;
+}
+
+.control__button {
+  width: 100%;
+  height: 30px;
+  margin-bottom: 5px;
+}
+
+// Post
+.post {
+  font-size: $normalSize;
+  padding: 20px 10px;
+}
+
+.post__title {
+  margin-bottom: 10px;
+}
+
+.post__image {
+  float: left;
+  width: 250px;
+  margin-right: 10px;
+}
+
+.post__description {
+  font-style: italic;
+  margin-bottom: 5px;
+}
+
+.post__content {
+
+}
+
+.post__link {
+  text-decoration: none;
+  font-weight: normal;
+  color: $mainBg;
+
+  &:hover {
+    color: darken($mainBg, 20%);
+    border-bottom: 1px dashed darken($mainBg, 20%);
+  }
+}
+
+.post__comments {
+  padding-top: 50px;
+}
+
+.post__add-comment {
+
+}
+
+// Comment
+.comment {
+  margin-bottom: 10px;
+}
+.comment__name {
+  font-weight: bold;
+  font-size: $normalSize + 4px;
+}
+.comment__content {
+  font-style: italic;
+}
+
+// Comments panel
+.add-comment {
+
+}
+
+.add-comment__name {
+  display: block;
+  height: 40px;
+  width: 100%; // 200px;
+  padding: 0 10px;
+  margin-bottom: 5px;
+  line-height: 40px;
+}
+
+.add-comment__area {
+  display: block;
+  width: 100%; // 200px;
+  padding: 5px 10px;
+  height: 100px;
+  margin-bottom: 5px;
+}
+
+.add-comment__button {
+  display: block;
+  width: 100%; // 200px;
+  height: 40px;
+  line-height: 40px;
+}
+
+// Pagination
+.pagination {
+  margin-bottom: 20px;
+
+  &:last-child {
+    margin-right: 0;
+  }
+
+  .pagination__item {
+    color: $mainBg;
+    text-decoration: none;
+    margin-right: 5px;
+
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    background-color: #f4f4f4;
+    text-align: center;
+    line-height: 30px;
+
+    &:hover {
+      color: darken($mainBg, 20%);
+      background-color: darken(#f4f4f4, 20%);
+    }
+  }
+}
+
+// Contacts
+.contacts {
+
+}
+
+.contacts__details {
+
+}
+
+.contacts__text {
+
+}
+
+.contacts__link {
+
+}
+
+.contacts__map {
+
+}
+
+// Errors
+.error {
+  left: 0;
+  right: 0;
+  z-index: 1;
+  position: fixed;
+  top: $headerHeight;
+  bottom: $footerHeight;
+}
+
+.error__message {
+  height: 100%;
+  line-height: 100%;
+  font-size: 48px;
+  font-weight: bold;
+  text-align: center;
+
+  &:after {
+    content: '';
+    height: 100%;
+    display: inline-block;
+    vertical-align: middle;
+  }
+}
+
+.error_404 {
+
+}
+
+// Footer
+.footer {
+  line-height: $footerHeight;
+}
+
+.footer__copyright {
+  color: #fff;
+  text-align: center;
+}
