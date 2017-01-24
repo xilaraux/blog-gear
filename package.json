@@ -1,0 +1,22 @@
+{
+  "name": "blog-gear",
+  "version": "1.0.0",
+  "description": "This is my implementation of basic front-end part of ordinary blog.",
+  "main": "server.js",
+  "scripts": {
+    "test": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xilaraux/blog-gear.git"
+  },
+  "author": "Alexander Kozlov",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/xilaraux/blog-gear/issues"
+  },
+  "homepage": "https://github.com/xilaraux/blog-gear#readme",
+  "devDependencies": {
+    "node-static": "^0.7.9"
+  }
+}
