@@ -340,12 +340,14 @@ var Blog = (function () {
 
         if(!_currentUser) {
             var nameArea = createElemWithClass('input', 'add-comment__name');
+            nameArea.placeholder = 'Name';
             nameArea.type = 'text';
 
             addCommentPanel.appendChild(nameArea);
         }
 
         var commentArea = createElemWithClass('textarea', 'add-comment__area');
+        commentArea.placeholder = 'Comment';
         addCommentPanel.appendChild(commentArea);
 
         var addComment = createElemWithClass('button', 'add-comment__button');
