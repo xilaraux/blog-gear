@@ -13,6 +13,8 @@
         },
     };
 
+    // TODO: make search menu slide
+
     // Private variables for current blog module state.
     var _isActivated = false;
     var _allPosts = null;
