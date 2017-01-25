@@ -4,7 +4,7 @@
   "description": "This is my implementation of basic front-end part of ordinary blog.",
   "main": "server.js",
   "scripts": {
-    "test": "node server.js"
+    "start": "node ./bin/server.js"
   },
   "repository": {
     "type": "git",

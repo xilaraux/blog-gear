@@ -10,3 +10,4 @@
 ## Node.js
 ### It is optional to run application by node.js
 ### In that case url looks better.
+### 'npm start'
