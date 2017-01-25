@@ -141,12 +141,8 @@ var Blog = (function () {
         var name = userData.name,
             pass = userData.password;
 
-        if(users.name == name) {
-            console.log('Blog:: Something wrong with your name.');
-            return;
-        }
-        if(users[name].password !== pass) {
-            console.log('Blog:: Something wrong with your pass.');
+        if(!users[name] || users[name].password !== pass) {
+            console.log('Blog:: Something wrong with your data.');
             return;
         }
 
@@ -256,6 +252,7 @@ var Blog = (function () {
 
     function _createUserInterface() {
         // TODO: create interface for blog: add post, remove post, maybe change
+        // TODO: social sharing
         return createElementByObject({
             tagName: 'p',
             innerHTML: _currentUser.name + ' ' + _currentUser.password
