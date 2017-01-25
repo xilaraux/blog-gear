@@ -379,8 +379,14 @@ var Blog = (function () {
                 result.name = _currentUser.name;
             } catch (e) {
                 var userNameArea = document.querySelectorAll('.add-comment__name')[0];
+                var userVal = [];
+                try{
+                    userVal = userNameArea.value;
+                } catch (e) {
+                    console.error('Blog:: You\'re not allowed to make comment right now. Please, reload page.');
+                }
 
-                if(userNameArea.value.length == 0) {
+                if(userVal.length == 0) {
                     return;
                 }
 
