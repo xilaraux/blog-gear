@@ -72,12 +72,9 @@
     // Object should contain this fields:
     // { tagName, [className, innerHTML, children] }
     // children is array of tags which will be included after innerHTML
+    // Concat arrays: just pass in object [].concat(array1, array2, ...);
+    // For element that already exist
     window.createElementByObject = function countElement(object) {
-        // TODO: make search menu slide
-        // TODO: concat arrays
-
-        // TODO: if element is DOM element return it
-        // For element that already exist
         if(object.nodeType) {
             return object;
         }
