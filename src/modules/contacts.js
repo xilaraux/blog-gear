@@ -39,28 +39,37 @@
     function _create() {
         var data = _config.data;
 
-        var contacts = createElemWithClass('div', 'contacts');
-
         var map = createElemWithClass('div', 'contacts__map');
         map.style.position = 'fixed';
 
-        var details = createElemWithClass('div', 'contacts__details');
-
-        var name = createElemWithClass('p', 'contacts__text');
-        name.innerHTML = data.name;
-
-        var phone = createElemWithClass('p', 'contacts__text');
-        phone.innerHTML = '<a href="tel:' + data.phone + '" class="contacts__link">' + data.phone + '<\/a>';
-
-        var email = createElemWithClass('p', 'contacts__text');
-        email.innerHTML = '<a href="tel:' + data.email + '" class="contacts__link">' + data.email + '<\/a>';
-
-        details.appendChild(name);
-        details.appendChild(phone);
-        details.appendChild(email);
-
-        contacts.appendChild(details);
-        contacts.appendChild(map);
+        var contacts = createElementByObject({
+            tagName: 'div',
+            className: 'contacts',
+            children: [
+                {
+                    tagName: 'div',
+                    className: 'contacts__details',
+                    children: [
+                        {
+                            tagName: 'p',
+                            className: 'contacts__text',
+                            innerHTML: data.name
+                        },
+                        {
+                            tagName: 'p',
+                            className: 'contacts__text',
+                            innerHTML: '<a href="tel:' + data.phone + '" class="contacts__link">' + data.phone + '<\/a>'
+                        },
+                        {
+                            tagName: 'p',
+                            className: 'contacts__text',
+                            innerHTML: '<a href="tel:' + data.email + '" class="contacts__link">' + data.email + '<\/a>'
+                        }
+                    ]
+                },
+                map
+            ]
+        });
 
         return contacts;
     }
@@ -73,13 +82,14 @@
 
         var body = document.getElementsByTagName('body')[0];
 
-        var moduleScript = document.createElement('script');
-        moduleScript.type = 'text/javascript';
-        moduleScript.src = _config.mapSrc;
+        var moduleScript = createElementByObject({
+            tagName: 'script',
+            type: 'text/javascript',
+            src: _config.mapSrc,
+            onload: _initMap
+        });
 
         _script = moduleScript;
-
-        moduleScript.onload = _initMap;
         // add script at the end of the tag
         body.appendChild(moduleScript);
     }

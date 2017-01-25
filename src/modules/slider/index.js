@@ -114,7 +114,7 @@
      * @return {object} DOM object of the module
      */
     function _create() {
-        // Prevent re-rendering
+        // Prevent re-creation
         if(_SLIDER) {
             return _SLIDER.cloneNode(true);
         }
@@ -163,6 +163,7 @@
         var panel = createElementByObject({
             tagName: 'div',
             className: 'slider__panel',
+            // FIX: function doesn't work after rendering
             onclick: _panelClickHandler,
             children: panelItems
         });
@@ -173,6 +174,7 @@
         var slider = createElementByObject({
             tagName: 'div',
             className: 'slider',
+            onclick: _panelClickHandler,
             children: imagesArray
         });
 

@@ -10,6 +10,9 @@
         './src/modules/gallery/images/6.jpg'
     ];
 
+    // FIX: events doesn't work
+    var _GALLERY = null;
+
     /**
      * Default module's configuration.
      * @namespace
@@ -35,32 +38,10 @@
     }
 
     function _create() {
-        // var gallery = createElemWithClass('div', 'gallery');
-
-        // var galleryDisplay = createElemWithClass('div', 'gallery__display');
-
-        // var imageContainer = createElemWithClass('div', 'gallery__pics');
-
-        // var i = 0, images = _config.data, length = images.length;
-        // for(; i < length; i++) {
-        //     var image = createElemWithClass('img', 'gallery__image');
-        //     image.src = images[i];
-        //     image.alt = 'Nature is beautiful.';
-
-        //     imageContainer.appendChild(image);
-        // }
-
-        // var imageDisplay = imageContainer.firstChild.cloneNode(true);
-        // imageDisplay.className += ' gallery__image_display';
-
-        // galleryDisplay.appendChild(imageDisplay);
-
-        // gallery.appendChild(galleryDisplay);
-        // gallery.appendChild(imageContainer);
-
-        // imageContainer.onclick = _clickHandler;
-
-        // return gallery;
+        // Prevent re-creation
+        if(_GALLERY) {
+            return _GALLERY.cloneNode(true);
+        }
 
         var imageContainer = [];
         var i = 0, images = _config.data, length = images.length;
@@ -100,6 +81,7 @@
             ]
         });
 
+        _GALLERY = gallery;
         return gallery;
     }
 
