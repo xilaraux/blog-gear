@@ -153,6 +153,14 @@ var Blog = (function () {
         _updateUserInterface();
     }
 
+    function _logoutBlog() {
+        if(!_currentUser) return;
+
+        _currentUser = null;
+
+        _updateUserInterface();
+    }
+
     function _createBlogInterface() {
         function onBlogSearch(e) {
             e = e || window.event;
@@ -174,44 +182,6 @@ var Blog = (function () {
             _updateContent(posts);
         }
 
-        function onBlogLogin(e) {
-            e = e || window.event;
-            e.preventDefault ? e.preventDefault() : (e.returnValue = false);
-
-            var target = e.target || e.srcElement;
-
-            var name = document.querySelectorAll('.control__name')[0],
-                pass = document.querySelectorAll('.control__pass')[0];
-
-            if(name.value.length == 0) return;
-            if(pass.value.length == 0) return;
-
-            _loginInBlog({name: name.value, password: pass.value});
-        }
-
-        function onBlogRegistry(e) {
-            e = e || window.event;
-            e.preventDefault ? e.preventDefault() : (e.returnValue = false);
-
-            var target = e.target || e.srcElement;
-
-            var currentClass = target.className;
-            if(currentClass.indexOf('control__registry') == -1) {
-                return;
-            }
-
-            var name = document.querySelectorAll('.control__name')[0],
-                pass = document.querySelectorAll('.control__pass')[0];
-
-            if(name.value.length == 0) return;
-            if(pass.value.length == 0) return;
-
-            _addNewUser({name: name.value, password: pass.value});
-
-            name.value = '';
-            pass.value = '';
-        }
-
         var blogPanel = createElementByObject({
             tagName: 'div',
             className: 'blog__nav',
@@ -226,41 +196,141 @@ var Blog = (function () {
             ]
         });
 
-        if(!_currentUser) {
-            blogPanel.appendChild(createElementByObject({
-                tagName: 'form',
-                className: 'blog__form control',
-                onsubmit: onBlogLogin,
-                innerHTML: '<input type="text" class="control__name blog__input" placeholder="Login" />' +
-                            '<input type="password" class="control__pass blog__input" placeholder="Password" />' +
-                            '<button type="submit" class="blog__button control__login">Log in</button>',
-                children: [
-                    {
-                        tagName: 'button',
-                        className: 'blog__button control__registry',
-                        innerHTML: 'Registry',
-                        onclick: onBlogRegistry
-                    }
-                ]
-            }));
-        } else {
-            blogPanel.appendChild(_createUserInterface());
-        }
+        blogPanel.appendChild(_createUserInterface());
 
         return blogPanel;
     }
 
     function _createUserInterface() {
+
+        function onBlogLogin(e) {
+            e = e || window.event;
+            e.preventDefault ? e.preventDefault() : (e.returnValue = false);
+
+            var target = e.target || e.srcElement;
+
+            var name = document.querySelectorAll('.user-interface__name')[0],
+                pass = document.querySelectorAll('.user-interface__pass')[0];
+
+            if(name && name.value.length == 0) return;
+            if(pass && pass.value.length == 0) return;
+
+            _loginInBlog({name: name.value, password: pass.value});
+        }
+
+        function onBlogRegistry(e) {
+            e = e || window.event;
+            e.preventDefault ? e.preventDefault() : (e.returnValue = false);
+
+            var target = e.target || e.srcElement;
+
+            var currentClass = target.className;
+            if(currentClass.indexOf('user-interface__registry') == -1) {
+                return;
+            }
+
+            var name = document.querySelectorAll('.user-interface__name')[0],
+                pass = document.querySelectorAll('.user-interface__pass')[0];
+
+            if(name.value.length == 0) return;
+            if(pass.value.length == 0) return;
+
+            _addNewUser({name: name.value, password: pass.value});
+
+            name.value = '';
+            pass.value = '';
+        }
+
+        function onBlogLogout(e) {
+            _logoutBlog();
+        }
+
+        var userInterface = null;
+        if(!_currentUser) {
+            userInterface = createElementByObject({
+                tagName: 'form',
+                className: 'blog__form user-interface',
+                onsubmit: onBlogLogin,
+                innerHTML: '<input type="text" class="user-interface__name blog__input" placeholder="Login" />' +
+                            '<input type="password" class="user-interface__pass blog__input" placeholder="Password" />' +
+                            '<button type="submit" class="blog__button user-interface__login">Log in</button>',
+                children: [
+                    {
+                        tagName: 'button',
+                        className: 'blog__button user-interface__registry',
+                        innerHTML: 'Registry',
+                        onclick: onBlogRegistry
+                    }
+                ]
+            });
+
+            return userInterface;
+        }
+
         // TODO: create interface for blog: add post, remove post, maybe change
         // TODO: social sharing
-        return createElementByObject({
-            tagName: 'p',
-            innerHTML: _currentUser.name + ' ' + _currentUser.password
+        var categoriesOptions = [];
+        var categories = _config.data.posts;
+        categoriesOptions.push(createElementByObject({
+            tagName: 'option',
+            className: 'create-post__category-name',
+            disabled: true,
+            innerHTML: 'Choose category name'
+        }));
+        for(var name in categories) {
+            categoriesOptions.push(createElementByObject({
+                tagName: 'option',
+                className: 'create-post__category-name',
+                value: name,
+                innerHTML: name
+            }));
+        }
+
+        // TODO: add styles for create post form
+        userInterface = createElementByObject({
+            tagName: 'div',
+            className: 'user-interface',
+            children: [
+                {
+                    tagName: 'p',
+                    className: 'user-interface__greeting',
+                    innerHTML: 'Hello, ' + _currentUser.name + '!'
+                },
+                {
+                    tagName: 'button',
+                    className: 'blog__input user-interface__logout',
+                    innerHTML: 'Logout',
+                    onclick: onBlogLogout
+                },
+                {
+                    tagName: 'form',
+                    className: 'create-post blog__form',
+                    innerHTML: '<input type="text" class="blog__input create-post__title" placeholder="Post title" />' +
+                                '<input type="text" class="blog__input create-post__url" placeholder="Post url" />' +
+                                '<input type="text" class="blog__input create-post__description" placeholder="Post description" />' +
+                                '<input type="text" class="blog__input create-post__image" placeholder="Link to image" />' +
+                                '<textarea class="blog__textarea create-post__content" placeholder="Post content" />',
+                    children: [
+                        {
+                            tagName: 'select',
+                            className: 'blog__input create-post__categories',
+                            children: categoriesOptions
+                        },
+                        {
+                            tagName: 'button',
+                            className: 'blog__button create-post__add',
+                            innerHTML: 'Add new post'
+                        }
+                    ]
+                }
+            ]
         });
+
+        return userInterface;
     }
 
     function _updateUserInterface() {
-        var oldInterface = document.querySelectorAll('.control')[0];
+        var oldInterface = document.querySelectorAll('.user-interface')[0];
 
         try {
             oldInterface.innerHTML = '';
@@ -268,7 +338,7 @@ var Blog = (function () {
             console.error('Blog:: Blog interface is not exist.');
         }
 
-        oldInterface.appendChild(_createUserInterface());
+        oldInterface.parentNode.replaceChild(_createUserInterface(), oldInterface);
     }
 
     function _getAllPostsData() {

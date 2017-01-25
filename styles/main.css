@@ -197,7 +197,8 @@ html, body {
 
 .blog__nav {
   width: 25%;
-  padding: 20px 10px 0 5px;
+  height: 100%;
+  padding: 20px 10px 5px;
   vertical-align: top;
   display: inline-block; }
 
@@ -231,19 +232,27 @@ html, body {
   font-size: 16px; }
 
 .blog__input {
-  padding: 0 5px; }
-
-.control__name {
+  padding: 0 5px;
   width: 100%;
   height: 30px;
   margin-bottom: 5px; }
 
-.control__pass {
+.blog__textarea {
+  padding: 5px 10px;
+  height: 100px;
+  margin-bottom: 5px; }
+
+.user-interface__name {
   width: 100%;
   height: 30px;
   margin-bottom: 5px; }
 
-.control__button {
+.user-interface__pass {
+  width: 100%;
+  height: 30px;
+  margin-bottom: 5px; }
+
+.user-interface__button {
   width: 100%;
   height: 30px;
   margin-bottom: 5px; }

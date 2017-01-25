@@ -77,18 +77,6 @@ function createElementByObject(object) {
         element.innerHTML = object.innerHTML;
     }
 
-    if(object.onsubmit) {
-        element.onsubmit = object.onsubmit;
-    }
-
-    if(object.onclick) {
-        element.onclick = object.onclick;
-    }
-
-    if(object.onload) {
-        element.onload = object.onload;
-    }
-
     if(object.id) {
         element.id = object.id;
     }
@@ -97,25 +85,39 @@ function createElementByObject(object) {
     if(object.src) {
         element.src = object.src;
     }
-
-    // For images
     if(object.alt) {
         element.alt = object.alt;
     }
 
+    // For inputs
     if(object.placeholder) {
         element.placeholder = object.placeholder;
     }
-
-    // For inputs,
+    if(object.value) {
+        element.value = object.value;
+    }
+    if(object.disabled) {
+        element.disabled = true;
+    }
     // IE8 doesn't support this progressive thing
-    // if(object.type) {
-    //     element.type = object.type;
-    // }
+    if(object.type) {
+        element.type = object.type;
+    }
 
     // For links
     if(object.href) {
         element.href = object.href;
+    }
+
+    // Events
+    if(object.onsubmit) {
+        element.onsubmit = object.onsubmit;
+    }
+    if(object.onclick) {
+        element.onclick = object.onclick;
+    }
+    if(object.onload) {
+        element.onload = object.onload;
     }
 
     if(!object.children)
