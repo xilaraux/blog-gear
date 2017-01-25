@@ -2,7 +2,7 @@
  * A module which provides slider.
  * @module slider
  */
-var Slider = (function () {
+;(function (window) {
 
     // Default links to images for slider.
     var _data = [
@@ -24,6 +24,9 @@ var Slider = (function () {
         interval: 5000,
         data: _data,
     };
+
+    // Slider essence
+    var _SLIDER = null;
 
     // Current frame of the slider.
     var _frame = 0;
@@ -107,48 +110,73 @@ var Slider = (function () {
 
     /**
      * @description Load slider markup and other staff.
-     * @function _render
+     * @function _create
      * @return {object} DOM object of the module
      */
-    function _render() {
+    function _create() {
+        // Prevent re-rendering
+        if(_SLIDER) {
+            return _SLIDER.cloneNode(true);
+        }
 
-        var slider = createElemWithClass('div', 'slider');
-
+        var imagesArray = [];
         var i = 0, length = _config.data.length;
         for(; i < length; i++) {
-            var image = createElemWithClass('img', 'slider__image');
+            var image = createElementByObject({
+                tagName: 'img',
+                className: 'slider__image',
+                src: _config.data[i]
+            });
 
-            image.src = _config.data[i];
-
-            slider.appendChild(image);
+            imagesArray.push(image);
         }
 
-        var panel = createElemWithClass('div', 'slider__panel');
+        // Panel items
+        var panelItems = [];
 
-        var prevItem = createElemWithClass('span', 'slider__prev');
-        prevItem.innerHTML = '&#10094;';
+        var prevButton = createElementByObject({
+            tagName: 'span',
+            className: 'slider__prev',
+            innerHTML: '&#10094;'
+        });
+        panelItems.push(prevButton);
 
-        panel.appendChild(prevItem);
-
-        for(i = 0; i < length; i++) {
-            var panelItem = createElemWithClass('span', 'slider__item');
-
+        for(var i = 0; i < length; i++) {
+            var panelItem = createElementByObject({
+                tagName: 'span',
+                className: 'slider__item',
+                innerHTML: '' + i
+            });
             panelItem.setAttribute('data-index', i);
 
-            panelItem.innerHTML = i;
-
-            panel.appendChild(panelItem);
+            panelItems.push(panelItem);
         }
 
-        var nextItem = createElemWithClass('span', 'slider__next');
-        nextItem.innerHTML = '&#10095;';
+        var nextButton = createElementByObject({
+            tagName: 'span',
+            className: 'slider__next',
+            innerHTML: '&#10095;'
+        });
+        panelItems.push(nextButton);
 
-        panel.appendChild(nextItem);
+        // Slider interface
+        var panel = createElementByObject({
+            tagName: 'div',
+            className: 'slider__panel',
+            onclick: _panelClickHandler,
+            children: panelItems
+        });
 
-        slider.appendChild(panel);
+        imagesArray.push(panel);
 
-        panel.onclick = _panelClickHandler;
+        // Slider
+        var slider = createElementByObject({
+            tagName: 'div',
+            className: 'slider',
+            children: imagesArray
+        });
 
+        _SLIDER = slider.cloneNode(true);
         return slider;
     }
 
@@ -177,12 +205,12 @@ var Slider = (function () {
     function init(config) {
         extend(_config, config);
 
-        return _render();
+        return _create();
     }
 
-    return {
+    window.Slider = {
         init: init,
         start: start,
     };
 
-}());
+}(window));

@@ -1,4 +1,4 @@
-var Gallery = (function () {
+;(function (window) {
 
     // Default links to images for slider.
     var _data = [
@@ -35,30 +35,70 @@ var Gallery = (function () {
     }
 
     function _create() {
-        var gallery = createElemWithClass('div', 'gallery');
+        // var gallery = createElemWithClass('div', 'gallery');
 
-        var galleryDisplay = createElemWithClass('div', 'gallery__display');
+        // var galleryDisplay = createElemWithClass('div', 'gallery__display');
 
-        var imageContainer = createElemWithClass('div', 'gallery__pics');
+        // var imageContainer = createElemWithClass('div', 'gallery__pics');
 
+        // var i = 0, images = _config.data, length = images.length;
+        // for(; i < length; i++) {
+        //     var image = createElemWithClass('img', 'gallery__image');
+        //     image.src = images[i];
+        //     image.alt = 'Nature is beautiful.';
+
+        //     imageContainer.appendChild(image);
+        // }
+
+        // var imageDisplay = imageContainer.firstChild.cloneNode(true);
+        // imageDisplay.className += ' gallery__image_display';
+
+        // galleryDisplay.appendChild(imageDisplay);
+
+        // gallery.appendChild(galleryDisplay);
+        // gallery.appendChild(imageContainer);
+
+        // imageContainer.onclick = _clickHandler;
+
+        // return gallery;
+
+        var imageContainer = [];
         var i = 0, images = _config.data, length = images.length;
         for(; i < length; i++) {
-            var image = createElemWithClass('img', 'gallery__image');
-            image.src = images[i];
-            image.alt = 'Nature is beautiful.';
+            var image = createElementByObject({
+                tagName: 'img',
+                className: 'gallery__image',
+                src: images[i],
+                alt: 'Nature is beautiful.'
+            });
 
-            imageContainer.appendChild(image);
+            imageContainer.push(image);
         }
 
-        var imageDisplay = imageContainer.firstChild.cloneNode(true);
-        imageDisplay.className += ' gallery__image_display';
-
-        galleryDisplay.appendChild(imageDisplay);
-
-        gallery.appendChild(galleryDisplay);
-        gallery.appendChild(imageContainer);
-
-        imageContainer.onclick = _clickHandler;
+        var gallery = createElementByObject({
+            tagName: 'div',
+            className: 'gallery',
+            children: [
+                {
+                    tagName: 'div',
+                    className: 'gallery__display',
+                    children: [
+                        {
+                            tagName: 'img',
+                            className: 'gallery__image gallery__image_display',
+                            src: images[0],
+                            alt: 'Nature is beautiful.'
+                        } 
+                    ]
+                },
+                {
+                    tagName: 'div',
+                    className: 'gallery__pics',
+                    onclick: _clickHandler,
+                    children: imageContainer
+                }
+            ]
+        });
 
         return gallery;
     }
@@ -69,8 +109,8 @@ var Gallery = (function () {
         return _create();
     }
 
-    return {
+    window.Gallery = {
         init: init
-    }
+    };
 
-})();
+}(window));

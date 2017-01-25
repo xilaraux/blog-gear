@@ -1,5 +1,5 @@
 // Routes
-var Routes = (function () {
+;(function (window) {
     var _routes = {
         '/404': {
             title: 'ERROR 404',
@@ -70,9 +70,9 @@ var Routes = (function () {
         }, 100);
     }
 
-    return {
+    window.Routes = {
         addRoute: addRoute,
         loadRoute: loadRoute,
         removeRoute: removeRoute,
     };
-}());
+}(window));

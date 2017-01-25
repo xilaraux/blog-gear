@@ -1,4 +1,4 @@
-var Blog = (function () {
+;(function (window) {
     // Default data
     var _config = {
         postsOnPage: 2,
@@ -305,8 +305,8 @@ var Blog = (function () {
                 {
                     tagName: 'form',
                     className: 'create-post blog__form',
+                    // TODO: post url is post title but with dashes instead of spaces replace(/-/g,' '). Don't forget toLOwerCase()
                     innerHTML: '<input type="text" class="blog__input create-post__title" placeholder="Post title" />' +
-                                '<input type="text" class="blog__input create-post__url" placeholder="Post url" />' +
                                 '<input type="text" class="blog__input create-post__description" placeholder="Post description" />' +
                                 '<input type="text" class="blog__input create-post__image" placeholder="Link to image" />' +
                                 '<textarea class="blog__textarea create-post__content" placeholder="Post content" />',
@@ -587,8 +587,9 @@ var Blog = (function () {
         return _create();
     }
 
-    return {
+    window.Blog = {
         init: init,
         start: start,
     };
-}());
+
+}(window));

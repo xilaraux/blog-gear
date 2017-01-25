@@ -1,4 +1,4 @@
-var Contacts = (function () {
+;(function (window) {
     var _data = {
         name: 'Alexander Kozlov',
         phone: '+380660137641',
@@ -90,8 +90,9 @@ var Contacts = (function () {
         return _create();
     }
 
-    return {
+    window.Contacts = {
         init: init,
         start: start,
     };
-}());
+
+}(window));
