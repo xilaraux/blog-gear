@@ -1,4 +1,4 @@
-var App = (function () {
+;(function (window) {
     // Data
     var _data = {
         store: {
@@ -42,14 +42,16 @@ var App = (function () {
 
         var head = document.getElementsByTagName('head')[0];
 
-        var moduleScript = document.createElement('script');
-        moduleScript.type = 'text/javascript';
-        moduleScript.src = module.src;
-        moduleScript.defer = true;
-        // hack for dynamic module usage
-        moduleScript.onreadystatechange = callback;
-        moduleScript.onload = callback;
-
+        var moduleScript = createElementByObject({
+            tagName: 'script',
+            src: module.src,
+            type: 'text/javascript',
+            onload: callback,
+            onreadystatechange: callback
+        });
+        // TODO: look how it works in IE8
+        // moduleScript.defer = true;
+        // moduleScript.async = true;
 
         // add script at the end of the tag
         head.appendChild(moduleScript);
@@ -143,14 +145,14 @@ var App = (function () {
         // Disable all links on the page
         addEventListener(document.body, 'click', _appClickHandler);
 
-        // Include data
-        _includeModule(_data.store, function() {
-            console.log('Data has been loaded.');
-        });
-
         // Include application routes
         _includeModule(_modules.routes, function() {
             _routesLoadHandler();
+        });
+
+        // Include data
+        _includeModule(_data.store, function() {
+            console.log('Data has been loaded.');
         });
 
         // Provide menu events
@@ -159,10 +161,11 @@ var App = (function () {
         });
     }
 
-    return {
+    window.App = {
         init: init
     };
-}());
+
+}(window));
 
 // console.time('App::init()');
 App.init();
