@@ -51,7 +51,6 @@
     };
 
     window.getHashFromURL = function(URL) {
-        // window.location.hash.substr(1)
         var route = URL.split('#')[1] ? URL.split('#')[1] : '/';
 
         return route;
