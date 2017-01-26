@@ -10,7 +10,6 @@
         './src/modules/gallery/images/6.jpg'
     ];
 
-    // FIX: events doesn't work
     var _GALLERY = null;
 
     /**
@@ -40,7 +39,7 @@
     function _create() {
         // Prevent re-creation
         if(_GALLERY) {
-            return _GALLERY.cloneNode(true);
+            return createElementByObject(_GALLERY); // FIX: doesn't create element at second time IE8.
         }
 
         var imageContainer = [];
