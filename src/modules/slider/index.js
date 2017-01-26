@@ -116,7 +116,7 @@
     function _create() {
         // Prevent re-creation
         if(_SLIDER) {
-            return _SLIDER.cloneNode(true);
+            return _SLIDER; // FIX: doesn't create element at second time in IE8. Maybe have to create copy
         }
 
         var imagesArray = [];
@@ -163,7 +163,6 @@
         var panel = createElementByObject({
             tagName: 'div',
             className: 'slider__panel',
-            // FIX: function doesn't work after rendering
             onclick: _panelClickHandler,
             children: panelItems
         });
@@ -174,11 +173,10 @@
         var slider = createElementByObject({
             tagName: 'div',
             className: 'slider',
-            onclick: _panelClickHandler,
             children: imagesArray
         });
 
-        _SLIDER = slider.cloneNode(true);
+        _SLIDER = slider;
         return slider;
     }
 
@@ -187,6 +185,7 @@
      * @method start
      */
     function start() {
+        // FIX: error after come back on the page
         _showFrame(_frame);
 
         var interval = setInterval(function() {
