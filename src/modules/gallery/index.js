@@ -38,9 +38,9 @@
 
     function _create() {
         // Prevent re-creation
-        if(_GALLERY) {
-            return createElementByObject(_GALLERY); // FIX: doesn't create element at second time IE8.
-        }
+        // if(_GALLERY) {
+        //     return createElementByObject(_GALLERY); // FIX: doesn't create element at second time IE8.
+        // }
 
         var imageContainer = [];
         var i = 0, images = _config.data, length = images.length;
@@ -80,7 +80,7 @@
             ]
         });
 
-        _GALLERY = gallery;
+        // _GALLERY = gallery;
         return gallery;
     }
 

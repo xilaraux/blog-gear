@@ -115,9 +115,9 @@
      */
     function _create() {
         // Prevent re-creation
-        if(_SLIDER) {
-            return _SLIDER; // FIX: doesn't create element at second time in IE8. Maybe have to create copy
-        }
+        // if(_SLIDER) {
+        //     return _SLIDER; // FIX: doesn't create element at second time in IE8. Maybe have to create copy
+        // }
 
         var imagesArray = [];
         var i = 0, length = _config.data.length;
@@ -176,7 +176,7 @@
             children: imagesArray
         });
 
-        _SLIDER = slider;
+        // _SLIDER = slider;
         return slider;
     }
 
