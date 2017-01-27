@@ -15,72 +15,29 @@
 
     // TODO: make search menu slide
 
-    // Private variables for current blog module state.
-    var _isActivated = false;
-    var _allPosts = null;
-    var _frames = {
-        blog: null,
+    /**
+     * Blog's state and methods to change some of them
+     * @property {boolean} isActivated,
+     * @property {Array} allPosts,
+     * @property {Array} frames,
+     * @property {object} currentUser,
+     * @property {DOM Node} node
+     * @private
+     */
+    var _BLOG = {
+        isActivated: false,
+        allPosts: null,
+        frames: null,
+        currentUser: null,
+        node: null,
     };
-    var _currentUser = null;
 
-    // Function will be loaded when someone would try to load some page like /blog or /blog/*
-    function _provideRoutes() {
-        if(_isActivated) {
-            return;
-        }
-
-        _isActivated = true;
-
-        // Handle categories
-        var categories = _config.data.posts;
-        for(var category in categories) {
-            (function (categoryName) {
-                Routes.addRoute('/blog/' + categoryName, 'Blog | ' + categoryName, function () {
-                    _updateContent(_getPostsByCategory(categoryName));
-                    _includePagination();
-                });
-            }(category));
-        }
-
-        // Allow to access posts one by one.
-        for(var i = 0, length = _allPosts.length; i < length; i++) {
-            (function(post) {
-                Routes.addRoute('/blog/' + post.url, 'Blog | ' + post.title, function () {
-                    _updateContent(_createPost(post, true));
-                    _includePagination();
-                });
-            }(_allPosts[i]));
-        }
-
-        // Work on blog pagination
-        for(var i = 0, length = _frames.blog.length; i < length; i++) {
-            (function(frame, index) {
-                Routes.addRoute('/blog/' + index, 'Blog | ' + index, function () {
-                    _updateContent(frame.cloneNode(true));
-                });
-            }(_frames.blog[i], i));
-        }
-    }
-
-    // Gets name of the category, returns DOM fragment of the posts from the current category.
-    function _getPostsByCategory(category) {
-        var categoryData = _config.data.posts[category];
-
-        if(!categoryData) {
-            return;
-        }
-
-        var posts = document.createDocumentFragment();
-
-        for(var i = 0, length = categoryData.length; i < length; i++) {
-            posts.appendChild(_createPost(categoryData[i]));
-        }
-
-        return posts;
-    }
-
-    // Gets array of data, returns array of DOM fragments which is pages for pagination
-    function _splitOnFrames(dataSet) {
+    /**
+     * Split data at the blog on frames
+     * @param dataSet
+     * @return {Array} blog pages
+     */
+    _BLOG.splitOnFrames = function(dataSet) {
         var result = [];
         var allowedPages = _config.postsOnPage;
         var frame = document.createDocumentFragment();
@@ -89,36 +46,22 @@
             if(i != 0 && i % allowedPages == 0) {
                 result.push(frame);
                 frame = document.createDocumentFragment();
-                frame.appendChild(_createPost(_allPosts[i]));
+                frame.appendChild(_POSTS.createPost(this.allPosts[i]));
                 continue;
             }
-            frame.appendChild(_createPost(_allPosts[i]));
+            frame.appendChild(_POSTS.createPost(this.allPosts[i]));
         }
         result.push(frame);
 
+        this.frames = result;
         return result;
-    }
+    };
 
-    // Gets array of DOM fragments(pages) and URL prefix for them.
-    // Returns DOM elemet of pagination panel.
-    function _createPagination(pageFrames, urlPrefix) {
-        var paginationPanel = createElemWithClass('div', 'blog__pagination pagination');
-
-        for(var i = 0, length = pageFrames.length; i < length; i++) {
-            var item = createElementByObject({
-                tagName: 'a',
-                className: 'pagination__item route',
-                href: '#/' + urlPrefix + '/' + i,
-                innerHTML: '' + i,
-            });
-
-            paginationPanel.appendChild(item);
-        }
-
-        return paginationPanel;
-    }
-
-    function _addNewUser(userData) {
+    /**
+     * Register new user
+     * @param userData
+     */
+    _BLOG.addUser = function (userData) {
         var users = _config.data.users;
 
         if(users[userData.name]) {
@@ -131,10 +74,14 @@
         };
 
         console.log('Blog:: New user was registered successfully.', users);
-    }
+    };
 
-    function _loginInBlog(userData) {
-        if(_currentUser) {
+    /**
+     * Log in user
+     * @param userData
+     */
+    _BLOG.login = function (userData) {
+        if(this.currentUser) {
             return;
         }
 
@@ -148,63 +95,158 @@
             return;
         }
 
-        _currentUser = {
+        this.currentUser = {
             name: name,
             password: pass
         };
-        _updateUserInterface();
-    }
 
-    function _logoutBlog() {
-        if(!_currentUser) return;
+        _UserInterface.update();
+    };
 
-        _currentUser = null;
+    /**
+     * Log out current user
+     */
+    _BLOG.logout = function () {
+        if(!this.currentUser) return;
 
-        _updateUserInterface();
-    }
+        this.currentUser = null;
 
-    function _createBlogInterface() {
-        function onBlogSearch(e) {
-            e = e || window.event;
-            e.preventDefault ? e.preventDefault() : (e.returnValue = false);
+        _UserInterface.update();
+    };
 
-            var searchInput = document.querySelectorAll('.blog__search')[0];
-            if(!searchInput || searchInput.value.length == 0) {
-                return;
-            }
+    /**
+     * Contains methods for work with posts
+     * @type {Object}
+     * @private
+     */
+    var _POSTS = {};
 
-            var postsWithTitle = _searchPostsByTitle(searchInput.value);
-
-            var posts = document.createDocumentFragment();
-            for(var i = 0, length = postsWithTitle.length; i < length; i++) {
-                posts.appendChild(_createPost(postsWithTitle[i]));
-            }
-
-            _includePagination();
-            _updateContent(posts);
+    /**
+     * @function getPostsData
+     * @return {Array} posts data array
+     */
+    _POSTS.getPostsData = function () {
+        if(_BLOG.allPosts) {
+            return _BLOG.allPosts;
         }
 
-        var blogPanel = createElementByObject({
+        _BLOG.allPosts = [];
+        var posts = _config.data.posts;
+        for (var category in posts) {
+            _BLOG.allPosts = _BLOG.allPosts.concat(posts[category]);
+        }
+
+        return _BLOG.allPosts;
+    };
+
+    /**
+     * Create document fragment with posts in it.
+     * @param category
+     * @return {DocumentFragment} Posts
+     */
+    _POSTS.getByCategory = function (category) {
+        var categoryData = _config.data.posts[category];
+
+        if(!categoryData) {
+            return;
+        }
+
+        var posts = document.createDocumentFragment();
+
+        for(var i = 0, length = categoryData.length; i < length; i++) {
+            posts.appendChild(_POSTS.createPost(categoryData[i]));
+        }
+
+        return posts;
+    };
+
+    /**
+     * Create post DOM Node by template
+     * @param {object} postData - contains post data
+     * @param {boolean} isAlone - if post should be created for own
+     * @return {DOM Node} post
+     */
+    _POSTS.createPost = function (postData, isAlone) {
+        var post = createElementByObject({
             tagName: 'div',
-            className: 'blog__nav',
+            className: 'blog__post post',
             children: [
                 {
-                    tagName: 'form',
-                    className: 'blog__form',
-                    onsubmit: onBlogSearch,
-                    innerHTML: '<input type="text" class="blog__search blog__input" placeholder="Search input" />' +
-                                '<button type="submit" class="blog__button search">Search</button>'
+                    tagName: 'img',
+                    className: 'post__image',
+                    src: postData.image,
+                    alt: postData.title
+                },
+                {
+                    tagName: 'h2',
+                    className: 'post__title',
+                    children: [
+                        {
+                            tagName: 'a',
+                            className: 'post__link route',
+                            href: '#/blog/' + postData.url,
+                            innerHTML: postData.title
+                        }
+                    ]
+                },
+                {
+                    tagName: 'p',
+                    className: 'post__description',
+                    innerHTML: postData.description
                 }
             ]
         });
 
-        blogPanel.appendChild(_createUserInterface());
+        if(isAlone) {
+            var content = createElementByObject({
+                tagName: 'p',
+                className: 'post__content',
+                innerHTML: postData.content
+            });
+            post.appendChild(content);
 
-        return blogPanel;
-    }
+            var comments = _UserInterface.createComments(postData.comments);
+            post.appendChild(comments);
 
-    function _createUserInterface() {
+            var commentPanel = _UserInterface.createCommentPanel(postData);
+            post.appendChild(commentPanel);
+        }
 
+        return post;
+    };
+
+    /**
+     * Search posts which contains this title
+     * @param title - post's title that we're looking for
+     * @return {Array} data about posts which include this title
+     */
+    _POSTS.searchByTitle = function (title) {
+        var posts = _POSTS.getPostsData();
+        var result = [];
+
+        for(var i = 0, length = posts.length; i < length; i++) {
+            var currentTitle = posts[i].title.toLowerCase();
+            if(currentTitle.indexOf(title.toLowerCase()) >= 0) {
+                result.push(posts[i]);
+            }
+        }
+
+        return result;
+    };
+
+    /**
+     * Contains methods for work with blog's user interface elements.
+     * @type {object}
+     * @private
+     */
+    var _UserInterface = {};
+
+    /**
+     * Method for producing user interface
+     * @private
+     * @return {DOM Node} user interface
+     */
+    _UserInterface.create = function() {
         function onBlogLogin(e) {
             e = e || window.event;
             e.preventDefault ? e.preventDefault() : (e.returnValue = false);
@@ -217,7 +259,7 @@
             if(name && name.value.length == 0) return;
             if(pass && pass.value.length == 0) return;
 
-            _loginInBlog({name: name.value, password: pass.value});
+            _BLOG.login({name: name.value, password: pass.value});
         }
 
         function onBlogRegistry(e) {
@@ -237,25 +279,25 @@
             if(name.value.length == 0) return;
             if(pass.value.length == 0) return;
 
-            _addNewUser({name: name.value, password: pass.value});
+            _BLOG.addUser({name: name.value, password: pass.value});
 
             name.value = '';
             pass.value = '';
         }
 
         function onBlogLogout(e) {
-            _logoutBlog();
+            _BLOG.logout();
         }
 
         var userInterface = null;
-        if(!_currentUser) {
+        if(!_BLOG.currentUser) {
             userInterface = createElementByObject({
                 tagName: 'form',
                 className: 'blog__form user-interface',
                 onsubmit: onBlogLogin,
                 innerHTML: '<input type="text" class="user-interface__name blog__input" placeholder="Login" />' +
-                            '<input type="password" class="user-interface__pass blog__input" placeholder="Password" />' +
-                            '<button type="submit" class="blog__button user-interface__login">Log in</button>',
+                '<input type="password" class="user-interface__pass blog__input" placeholder="Password" />' +
+                '<button type="submit" class="blog__button user-interface__login">Log in</button>',
                 children: [
                     {
                         tagName: 'button',
@@ -296,7 +338,7 @@
                 {
                     tagName: 'p',
                     className: 'user-interface__greeting',
-                    innerHTML: 'Hello, ' + _currentUser.name + '!'
+                    innerHTML: 'Hello, ' + _BLOG.currentUser.name + '!'
                 },
                 {
                     tagName: 'button',
@@ -309,9 +351,9 @@
                     className: 'create-post blog__form',
                     // TODO: post url is post title but with dashes instead of spaces replace(/-/g,' '). Don't forget toLOwerCase()
                     innerHTML: '<input type="text" class="blog__input create-post__title" placeholder="Post title" />' +
-                                '<input type="text" class="blog__input create-post__description" placeholder="Post description" />' +
-                                '<input type="text" class="blog__input create-post__image" placeholder="Link to image" />' +
-                                '<textarea class="blog__textarea create-post__content" placeholder="Post content" />',
+                    '<input type="text" class="blog__input create-post__description" placeholder="Post description" />' +
+                    '<input type="text" class="blog__input create-post__image" placeholder="Link to image" />' +
+                    '<textarea class="blog__textarea create-post__content" placeholder="Post content" />',
                     children: [
                         {
                             tagName: 'select',
@@ -329,9 +371,12 @@
         });
 
         return userInterface;
-    }
+    };
 
-    function _updateUserInterface() {
+    /**
+     * Method replaced old interface by new one
+     */
+    _UserInterface.update = function () {
         var oldInterface = document.querySelectorAll('.user-interface')[0];
 
         try {
@@ -339,46 +384,21 @@
         } catch (e) {
             console.error('Blog:: Blog interface is not exist.');
         }
+        // Fix: make it pretty
+        oldInterface.parentNode.replaceChild(_UserInterface.create(), oldInterface);
+    };
 
-        oldInterface.parentNode.replaceChild(_createUserInterface(), oldInterface);
-    }
-
-    function _getAllPostsData() {
-        if(_allPosts) {
-            return _allPosts;
-        }
-
-        _allPosts = [];
-        var posts = _config.data.posts;
-        for (var category in posts) {
-            _allPosts = _allPosts.concat(posts[category]);
-        }
-
-        return _allPosts;
-    }
-
-    // Search post by title
-    function _searchPostsByTitle(title) {
-        var posts = _getAllPostsData();
-        var result = [];
-
-        for(var i = 0, length = posts.length; i < length; i++) {
-            var currentTitle = posts[i].title.toLowerCase();
-            if(currentTitle.indexOf(title.toLowerCase()) >= 0) {
-                result.push(posts[i]);
-            }
-        }
-
-        return result;
-    }
-
-    // Return generated comments panel for users.
-    function _createCommentPanel(postData) {
+    /**
+     * Create comments interface for post
+     * @param postData
+     */
+    _UserInterface.createCommentPanel = function (postData) {
+        // TODO: rewrite function
         function onSubmit(e) {
             var result = {};
 
             try {
-                result.name = _currentUser.name;
+                result.name = _BLOG.currentUser.name;
             } catch (e) {
                 var userNameArea = document.querySelectorAll('.add-comment__name')[0];
                 var userVal = [];
@@ -411,12 +431,12 @@
 
             postData.comments.push(result);
 
-            _updateContent(_createPost(postData, true));
+            _updateContent(_POSTS.createPost(postData, true));
         }
 
         var addCommentPanel = createElemWithClass('div', 'post__add-comment add-comment');
 
-        if(!_currentUser) {
+        if(!_BLOG.currentUser) {
             var nameArea = createElemWithClass('input', 'add-comment__name');
             nameArea.placeholder = 'Name';
             nameArea.type = 'text';
@@ -435,18 +455,36 @@
         addEventListener(addComment, 'click', onSubmit);
 
         return addCommentPanel;
-    }
+    };
 
-    // Create and provide actions on comments panel.
-    function _createComments(commentsData) {
+    /**
+     * Update comments interface for post
+     * @param postData
+     */
+    _UserInterface.updateCommentPanel = function () {
+        var oldPanel = document.querySelectorAll('.add-comment')[0];
 
+        try {
+            oldPanel.innerHTML = '';
+        } catch (e) {
+            console.error('Blog:: Comment interface is not exist.');
+        }
+        // Fix: make it pretty
+        oldPanel.parentNode.replaceChild(this.createCommentPanel(), oldPanel);
+    };
+
+    /**
+     * Create comments components.
+     * @param commentsData
+     */
+    _UserInterface.createComments = function (commentsData) {
         if(!commentsData) {
             return createElemWithClass('div', 'post__comments');
         }
 
         var comments = createElemWithClass('div', 'post__comments');
         for(var i = 0, length = commentsData.length; i < length; i++) {
-           var comment = createElementByObject({
+            var comment = createElementByObject({
                 tagName: 'div',
                 className: 'comment',
                 children: [
@@ -467,62 +505,39 @@
         }
 
         return comments;
-    }
+    };
 
-    // Gets object which represents data of the current post and special mark for place were post will be added.
-    // Returns DOM element of post.
-    function _createPost(postData, isAlone) {
-        var post = createElementByObject({
-            tagName: 'div',
-            className: 'blog__post post',
-            children: [
-                {
-                    tagName: 'img',
-                    className: 'post__image',
-                    src: postData.image,
-                    alt: postData.title
-                },
-                {
-                    tagName: 'h2',
-                    className: 'post__title',
-                    children: [
-                        {
-                            tagName: 'a',
-                            className: 'post__link route',
-                            href: '#/blog/' + postData.url,
-                            innerHTML: postData.title
-                        }
-                    ]
-                },
-                {
-                    tagName: 'p',
-                    className: 'post__description',
-                    innerHTML: postData.description
-                }
-            ]
-        });
-
-        if(isAlone) {
-            var content = createElementByObject({
-               tagName: 'p',
-                className: 'post__content',
-                innerHTML: postData.content
+    /**
+     * Create pagination panel with items and right links
+     * @param pageFrames
+     * @param urlPrefix
+     * @return {DOM Node} pagination panel
+     */
+    _UserInterface.createPagination = function (pageFrames, urlPrefix) {
+        var items = [];
+        for(var i = 0, length = pageFrames.length; i < length; i++) {
+            var item = createElementByObject({
+                tagName: 'a',
+                className: 'pagination__item route',
+                href: '#/' + urlPrefix + '/' + i,
+                innerHTML: '' + i,
             });
-            post.appendChild(content);
 
-            var comments = _createComments(postData.comments);
-            post.appendChild(comments);
-
-            var commentPanel = _createCommentPanel(postData);
-            post.appendChild(commentPanel);
+            items[i] = item;
         }
 
-        return post;
-    }
+        return createElementByObject({
+            tagName: 'div',
+            className: 'blog__pagination pagination',
+            children: items
+        });
+    };
 
-    // Gets DOM element of pagination, include it in blog page.
-    // If gets nothing, remove pagination panel that is exist or does nothing.
-    function _includePagination(pagination) {
+    /**
+     * Include pagination panel if it's not exists or, in other case, delete
+     * @param pagination
+     */
+    _UserInterface.includePagination = function (pagination) {
         var blog = document.querySelectorAll('.blog')[0];
         var oldPagin = document.querySelectorAll('.blog__pagination')[0];
 
@@ -539,10 +554,98 @@
         }
 
         blog.appendChild(pagination);
+    };
+
+    /**
+     * Called from start method. Create blog's routes.
+     * @private
+     */
+    function _provideRoutes() {
+        if(_BLOG.isActivated) {
+            return;
+        }
+
+        _BLOG.isActivated = true;
+
+        // Handle categories
+        var categories = _config.data.posts;
+        for(var category in categories) {
+            (function (categoryName) {
+                Routes.addRoute('/blog/' + categoryName, 'Blog | ' + categoryName, function () {
+                    _updateContent(_POSTS.getByCategory(categoryName));
+                    _UserInterface.includePagination();
+                });
+            }(category));
+        }
+
+        // Allow to access posts one by one.
+        for(var i = 0, length = _BLOG.allPosts.length; i < length; i++) {
+            (function(post) {
+                Routes.addRoute('/blog/' + post.url, 'Blog | ' + post.title, function () {
+                    _updateContent(_POSTS.createPost(post, true));
+                    _UserInterface.includePagination();
+                });
+            }(_BLOG.allPosts[i]));
+        }
+
+        // Work on blog pagination
+        for(var i = 0, length = _BLOG.frames.length; i < length; i++) {
+            (function(frame, index) {
+                Routes.addRoute('/blog/' + index, 'Blog | ' + index, function () {
+                    _updateContent(frame.cloneNode(true));
+                });
+            }(_BLOG.frames[i], i));
+        }
     }
 
-    // Gets DOM element of data for including.
-    // If blog content element exist, previous data will be removed and new included in block.
+    /**
+     * Create blog interface
+     * @return {DOM Node} blog panel
+     */
+    function _createInterface() {
+        function onBlogSearch(e) {
+            e = e || window.event;
+            e.preventDefault ? e.preventDefault() : (e.returnValue = false);
+
+            var searchInput = document.querySelectorAll('.blog__search')[0];
+            if(!searchInput || searchInput.value.length == 0) {
+                return;
+            }
+
+            var postsWithTitle = _POSTS.searchByTitle(searchInput.value);
+
+            var posts = document.createDocumentFragment();
+            for(var i = 0, length = postsWithTitle.length; i < length; i++) {
+                posts.appendChild(_POSTS.createPost(postsWithTitle[i]));
+            }
+
+            _UserInterface.includePagination();
+            _updateContent(posts);
+        }
+
+        var blogPanel = createElementByObject({
+            tagName: 'div',
+            className: 'blog__nav',
+            children: [
+                {
+                    tagName: 'form',
+                    className: 'blog__form',
+                    onsubmit: onBlogSearch,
+                    innerHTML: '<input type="text" class="blog__search blog__input" placeholder="Search input" />' +
+                    '<button type="submit" class="blog__button search">Search</button>'
+                }
+            ]
+        });
+
+        blogPanel.appendChild(_UserInterface.create());
+
+        return blogPanel;
+    }
+
+    /**
+     * Function that update content on the current page
+     * @param {DOM Node} content - will be included
+     */
     function _updateContent(content) {
         var blogContent = document.querySelectorAll('.blog__content')[0];
 
@@ -552,37 +655,63 @@
 
         blogContent.innerHTML = '';
         blogContent.appendChild(content);
-    }
+    };
 
-    // Create blog element and return it.
+    /**
+     * Create blog's DOM Node
+     * @function _create
+     * @private
+     * @return {DOM Node} Blog's container
+     */
     function _create() {
-        var container = createElemWithClass('div', 'container container_blog');
+        // Prevent re-creation
+        if(_BLOG.node) {
+            return _BLOG.node;
+        }
 
-        var blog = createElemWithClass('div', 'blog');
+        if(!_BLOG.frames) {
+            _BLOG.splitOnFrames(_POSTS.getPostsData());
+        }
 
-        var blogContent = createElemWithClass('div', 'blog__content');
+        var container = createElementByObject({
+            tagName: 'div',
+            className: 'container container_blog',
+            children: [
+                {
+                    tagName: 'div',
+                    className: 'blog',
+                    children: [
+                        _createInterface(),
+                        {
+                            tagName: 'div',
+                            className: 'blog__content',
+                            children: [
+                                _BLOG.frames[0].cloneNode(true)
+                            ]
+                        },
+                        _UserInterface.createPagination(_BLOG.frames, 'blog')
+                    ]
+                }
+            ]
+        });
 
-        blog.appendChild(_createBlogInterface());
-
-        _frames.blog = _splitOnFrames(_getAllPostsData());
-
-        blogContent.appendChild(_frames.blog[0].cloneNode(true));
-
-        var paginationPanel = _createPagination(_frames.blog, 'blog');
-
-        blog.appendChild(blogContent);
-        blog.appendChild(paginationPanel);
-
-        container.appendChild(blog);
+        _BLOG.node = container;
         return container;
     }
 
-    // Function for export, start blog processes
+    /**
+     * On blog start function. Should be called after blog's rendering.
+     * @function start
+     */
     function start() {
         _provideRoutes();
     }
 
-    // Provide configs for blog and return it.
+    /**
+     * Initial function for whole blog.
+     * @param config - it is optional, extend default module's state
+     * @return {DOM Node}
+     */
     function init(config) {
         extend(_config, config);
 
