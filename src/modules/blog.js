@@ -124,10 +124,10 @@
      * @function getPostsData
      * @return {Array} posts data array
      */
-    _POSTS.getPostsData = function () {
-        if(_BLOG.allPosts) {
-            return _BLOG.allPosts;
-        }
+    _POSTS.getPostsData = function (/* forceMode */) {
+        // if(!forceMode && _BLOG.allPosts) {
+        //     return _BLOG.allPosts;
+        // }
 
         _BLOG.allPosts = [];
         var posts = _config.data.posts;
@@ -284,12 +284,70 @@
             if(pass && pass.value.length == 0) return;
 
             _BLOG.login({name: name.value, password: pass.value});
-            _UserInterface.updateCommentPanel();
+
+            if(document.querySelectorAll('.add-comment')[0])
+                _UserInterface.updateCommentPanel();
         }
 
         function onBlogLogout(e) {
             _BLOG.logout();
-            _UserInterface.updateCommentPanel();
+
+            if(document.querySelectorAll('.add-comment')[0])
+                _UserInterface.updateCommentPanel();
+        }
+
+        function onAddNewPost(e) {
+            e = e || window.event;
+            e.preventDefault ? e.preventDefault() : (e.returnValue = false);
+
+            var posts = _config.data.posts;
+
+            var title = document.querySelectorAll('.create-post__title')[0];
+            var description = document.querySelectorAll('.create-post__description')[0];
+            var image = document.querySelectorAll('.create-post__image')[0];
+            var content = document.querySelectorAll('.create-post__content')[0];
+
+            var categoriesList = document.querySelectorAll('.create-post__categories')[0];
+            // var categoryNew = document.querySelectorAll('.create-post__category-name_new')[0];
+
+            if(title.value.length == 0 ||
+                description.value.length == 0 ||
+                image.value.length == 0 ||
+                content.value.length == 0 ||
+                categoriesList.value.length == 0) {
+                    console.error('Blog:: You should fill all fields.');
+                    return;
+                }
+
+            // if(categoryNew.value.length != 0) category = categoryNew.value;
+
+            var category = categoriesList.value;
+
+            if(!posts[category]) posts[category] = [];
+
+            var currentPost = {
+                url: title.value.toLowerCase().replace(/\s/g,'-'),
+                title: title.value,
+                image: image.value,
+                description: description.value,
+                content: content.value
+            };
+
+            title.value = '';
+            image.value = '';
+            description.value = '';
+            content.value = '';
+
+            posts[category].push(currentPost);
+
+            // Fix: doesn't show at pagination
+            // _POSTS.getPostsData();
+            // _BLOG.splitOnFrames(_POSTS.getPostsData());
+
+            Routes.addRoute('/blog/' + currentPost.url, 'Blog | ' + currentPost.title, function () {
+                _updateContent(_POSTS.createPost(currentPost, true));
+                _UserInterface.includePagination();
+            });
         }
 
         var userInterface = null;
@@ -314,14 +372,13 @@
             return userInterface;
         }
 
-        // TODO: create interface for blog: add post, category
-        // TODO: social sharing
         var categoriesOptions = [];
         var categories = _config.data.posts;
         categoriesOptions.push(createElementByObject({
             tagName: 'option',
             className: 'create-post__category-name',
             disabled: true,
+            selected: true,
             innerHTML: 'Choose category name'
         }));
         for(var name in categories) {
@@ -351,21 +408,26 @@
                 {
                     tagName: 'form',
                     className: 'create-post blog__form',
-                    // TODO: post url is post title but with dashes instead of spaces replace(/-/g,' '). Don't forget toLOwerCase()
                     innerHTML: '<input type="text" class="blog__input create-post__title" placeholder="Post title" />' +
-                    '<input type="text" class="blog__input create-post__description" placeholder="Post description" />' +
-                    '<input type="text" class="blog__input create-post__image" placeholder="Link to image" />' +
-                    '<textarea class="blog__textarea create-post__content" placeholder="Post content" />',
+                                '<input type="text" class="blog__input create-post__description" placeholder="Post description" />' +
+                                '<input type="text" class="blog__input create-post__image" placeholder="Link to image" />' +
+                                '<textarea class="blog__textarea create-post__content" placeholder="Post content" />',
                     children: [
                         {
                             tagName: 'select',
                             className: 'blog__input create-post__categories',
                             children: categoriesOptions
                         },
+                        // {
+                        //     tagName: 'input',
+                        //     className: 'blog__input create-post__category-name create-post__category-name_new',
+                        //     placeholder: 'New category'
+                        // },
                         {
                             tagName: 'button',
                             className: 'blog__button create-post__add',
-                            innerHTML: 'Add new post'
+                            innerHTML: 'Add new post',
+                            onclick: onAddNewPost
                         }
                     ]
                 }
@@ -627,6 +689,8 @@
                 posts.appendChild(_POSTS.createPost(postsWithTitle[i]));
             }
 
+            searchInput.value = '';
+
             _UserInterface.includePagination();
             _updateContent(posts);
         }
@@ -641,7 +705,7 @@
                     className: 'blog__form',
                     onsubmit: onBlogSearch,
                     innerHTML: '<input type="text" class="blog__search blog__input" placeholder="Search input" />' +
-                    '<button type="submit" class="blog__button search">Search</button>'
+                                '<button type="submit" class="blog__button search">Search</button>'
                 }
             ]
         });

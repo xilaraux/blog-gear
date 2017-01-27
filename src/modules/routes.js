@@ -10,12 +10,17 @@
                     contentBlock = createElemWithClass('div', 'content');
                 }
 
-                var error = createElemWithClass('div', 'error error_404');
-
-                var errorMessage = createElemWithClass('p', 'error__message');
-                errorMessage.innerHTML = 'ERROR 404';
-
-                error.appendChild(errorMessage);
+                var error = createElementByObject({
+                    tagName: 'div',
+                    className: 'error error_404',
+                    children: [
+                        {
+                            tagName: 'p',
+                            className: 'error__message',
+                            innerHTML: 'ERROR 404'
+                        }
+                    ]
+                });
 
                 contentBlock.innerHTML = '';
                 contentBlock.appendChild(error);
@@ -54,6 +59,7 @@
             }
         }
 
+        // TODO: make it async
         // Delay have to be because of possibility dynamically added routes.
         setTimeout(function () {
             var route = _routes[path];
@@ -67,7 +73,7 @@
             document.title = route.title;
             window.location.hash = path;
             return path;
-        }, 100);
+        }, 200);
     }
 
     window.Routes = {

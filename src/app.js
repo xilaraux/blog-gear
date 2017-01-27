@@ -49,9 +49,6 @@
             onload: callback,
             onreadystatechange: callback
         });
-        // TODO: look how it works in IE8
-        // moduleScript.defer = true;
-        // moduleScript.async = true;
 
         // add script at the end of the tag
         head.appendChild(moduleScript);
@@ -76,8 +73,10 @@
 
         Routes.addRoute('/', 'Home page', function () {
             _includeModule(_modules.slider, function() {
-                _render(Slider.init());
-                Slider.start();
+                if(_modules.slider.script){
+                    _render(Slider.init({}));
+                    Slider.start();
+                }
             });
         });
 
@@ -147,12 +146,14 @@
 
         // Include application routes
         _includeModule(_modules.routes, function() {
-            _routesLoadHandler();
+            if(Routes) {
+                _routesLoadHandler();
+            }
         });
 
         // Include data
         _includeModule(_data.store, function() {
-            console.log('Data has been loaded.');
+            console.info('Data has been loaded.');
         });
 
         // Provide menu events
