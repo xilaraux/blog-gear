@@ -117,6 +117,9 @@
         }
 
         // Events
+        if(object.onscroll) {
+            element.onscroll = object.onscroll;
+        }
         if(object.onsubmit) {
             element.onsubmit = object.onsubmit;
         }
