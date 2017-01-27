@@ -13,8 +13,6 @@
         },
     };
 
-    // TODO: make search menu slide
-
     /**
      * Blog's state and methods to change some of them
      * @property {boolean} isActivated,
@@ -311,7 +309,7 @@
             return userInterface;
         }
 
-        // TODO: create interface for blog: add post, remove post, maybe change
+        // TODO: create interface for blog: add post, category
         // TODO: social sharing
         var categoriesOptions = [];
         var categories = _config.data.posts;
@@ -330,7 +328,6 @@
             }));
         }
 
-        // TODO: add styles for create post form
         userInterface = createElementByObject({
             tagName: 'div',
             className: 'user-interface',
@@ -384,7 +381,7 @@
         } catch (e) {
             console.error('Blog:: Blog interface is not exist.');
         }
-        // Fix: make it pretty
+
         oldInterface.parentNode.replaceChild(_UserInterface.create(), oldInterface);
     };
 
@@ -393,7 +390,6 @@
      * @param postData
      */
     _UserInterface.createCommentPanel = function (postData) {
-        // TODO: rewrite function
         function onSubmit(e) {
             var result = {};
 
@@ -434,27 +430,33 @@
             _updateContent(_POSTS.createPost(postData, true));
         }
 
-        var addCommentPanel = createElemWithClass('div', 'post__add-comment add-comment');
-
         if(!_BLOG.currentUser) {
-            var nameArea = createElemWithClass('input', 'add-comment__name');
-            nameArea.placeholder = 'Name';
-            nameArea.type = 'text';
-
-            addCommentPanel.appendChild(nameArea);
+            var nameArea = createElementByObject({
+                tagName: 'input',
+                className: 'add-comment__name',
+                placeholder: 'Name',
+                type: 'text'
+            });
         }
 
-        var commentArea = createElemWithClass('textarea', 'add-comment__area');
-        commentArea.placeholder = 'Comment';
-        addCommentPanel.appendChild(commentArea);
-
-        var addComment = createElemWithClass('button', 'add-comment__button');
-        addComment.innerHTML = 'Add comment';
-        addCommentPanel.appendChild(addComment);
-
-        addEventListener(addComment, 'click', onSubmit);
-
-        return addCommentPanel;
+        return createElementByObject({
+            tagName: 'div',
+            className: 'post__add-comment add-comment',
+            children: [
+                nameArea || {},
+                {
+                    tagName: 'textarea',
+                    className: 'add-comment__area',
+                    placeholder: 'Comment'
+                },
+                {
+                    tagName: 'button',
+                    className: 'add-comment__button',
+                    innerHTML: 'Add comment',
+                    onclick: onSubmit
+                }
+            ]
+        });
     };
 
     /**
@@ -469,7 +471,7 @@
         } catch (e) {
             console.error('Blog:: Comment interface is not exist.');
         }
-        // Fix: make it pretty
+
         oldPanel.parentNode.replaceChild(this.createCommentPanel(), oldPanel);
     };
 
@@ -623,6 +625,7 @@
             _updateContent(posts);
         }
 
+        // TODO: make search menu slide
         var blogPanel = createElementByObject({
             tagName: 'div',
             className: 'blog__nav',
