@@ -27,6 +27,7 @@
         allPosts: null,
         frames: null,
         currentUser: null,
+        currentPost: null,
         node: null,
     };
 
@@ -196,6 +197,8 @@
         });
 
         if(isAlone) {
+            _BLOG.currentPost = postData;
+
             var content = createElementByObject({
                 tagName: 'p',
                 className: 'post__content',
@@ -206,7 +209,7 @@
             var comments = _UserInterface.createComments(postData.comments);
             post.appendChild(comments);
 
-            var commentPanel = _UserInterface.createCommentPanel(postData);
+            var commentPanel = _UserInterface.createCommentPanel();
             post.appendChild(commentPanel);
         }
 
@@ -245,21 +248,6 @@
      * @return {DOM Node} user interface
      */
     _UserInterface.create = function() {
-        function onBlogLogin(e) {
-            e = e || window.event;
-            e.preventDefault ? e.preventDefault() : (e.returnValue = false);
-
-            var target = e.target || e.srcElement;
-
-            var name = document.querySelectorAll('.user-interface__name')[0],
-                pass = document.querySelectorAll('.user-interface__pass')[0];
-
-            if(name && name.value.length == 0) return;
-            if(pass && pass.value.length == 0) return;
-
-            _BLOG.login({name: name.value, password: pass.value});
-        }
-
         function onBlogRegistry(e) {
             e = e || window.event;
             e.preventDefault ? e.preventDefault() : (e.returnValue = false);
@@ -283,8 +271,25 @@
             pass.value = '';
         }
 
+        function onBlogLogin(e) {
+            e = e || window.event;
+            e.preventDefault ? e.preventDefault() : (e.returnValue = false);
+
+            var target = e.target || e.srcElement;
+
+            var name = document.querySelectorAll('.user-interface__name')[0],
+                pass = document.querySelectorAll('.user-interface__pass')[0];
+
+            if(name && name.value.length == 0) return;
+            if(pass && pass.value.length == 0) return;
+
+            _BLOG.login({name: name.value, password: pass.value});
+            _UserInterface.updateCommentPanel();
+        }
+
         function onBlogLogout(e) {
             _BLOG.logout();
+            _UserInterface.updateCommentPanel();
         }
 
         var userInterface = null;
@@ -387,9 +392,9 @@
 
     /**
      * Create comments interface for post
-     * @param postData
+     * @param postData - for adding comments
      */
-    _UserInterface.createCommentPanel = function (postData) {
+    _UserInterface.createCommentPanel = function () {
         function onSubmit(e) {
             var result = {};
 
@@ -421,17 +426,18 @@
             result.content = contentArea.value;
             contentArea.value = '';
 
-            if(!postData.comments) {
-                postData.comments = [];
+            if(_BLOG.currentPost && !_BLOG.currentPost.comments) {
+                _BLOG.currentPost.comments = [];
             }
 
-            postData.comments.push(result);
+            _BLOG.currentPost.comments.push(result);
 
-            _updateContent(_POSTS.createPost(postData, true));
+            _updateContent(_POSTS.createPost(_BLOG.currentPost, true));
         }
 
+        var nameArea = createElemWithClass('p');
         if(!_BLOG.currentUser) {
-            var nameArea = createElementByObject({
+            nameArea = createElementByObject({
                 tagName: 'input',
                 className: 'add-comment__name',
                 placeholder: 'Name',
@@ -443,7 +449,7 @@
             tagName: 'div',
             className: 'post__add-comment add-comment',
             children: [
-                nameArea || {},
+                nameArea,
                 {
                     tagName: 'textarea',
                     className: 'add-comment__area',
@@ -668,9 +674,9 @@
      */
     function _create() {
         // Prevent re-creation
-        if(_BLOG.node) {
-            return _BLOG.node;
-        }
+        // if(_BLOG.node) {
+        //     return _BLOG.node;
+        // }
 
         if(!_BLOG.frames) {
             _BLOG.splitOnFrames(_POSTS.getPostsData());
@@ -698,7 +704,7 @@
             ]
         });
 
-        _BLOG.node = container;
+        // _BLOG.node = container;
         return container;
     }
 
