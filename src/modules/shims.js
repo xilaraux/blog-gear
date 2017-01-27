@@ -74,6 +74,13 @@
     // Concat arrays: just pass in object [].concat(array1, array2, ...);
     // For element that already exist
     window.createElementByObject = function countElement(object) {
+        try {
+            object.property;
+        } catch (e) {
+            console.error('createElementByObject:: invalid parameter ' + e.stack);
+            return document.createElement('div');
+        }
+
         if(object.nodeType) {
             return object;
         }
