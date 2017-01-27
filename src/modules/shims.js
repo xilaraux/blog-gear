@@ -113,6 +113,9 @@
         if(object.disabled) {
             element.disabled = true;
         }
+        if(object.selected) {
+            element.selected = true;
+        }
         // IE8 doesn't support this progressive thing
         if(object.type) {
             element.type = object.type;
